@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>《红楼梦》智能问答助手</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        red: {
+                            800: '#8B0000',
+                            700: '#A52A2A',
+                            600: '#B22222',
+                            500: '#DC143C',
+                            100: '#F5EBFF'
+                        },
+                        paper: {
+                            50: '#F9F5EB',
+                            100: '#F4EFE0',
+                            200: '#E6DFC6'
+                        }
+                    },
+                    fontFamily: {
+                        'noto-serif': ['"Noto Serif SC"', 'serif'],
+                    },
+                    backgroundImage: {
+                        'paper-texture': "url('data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29 22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23e6e0d2' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E')"
+                    }
+                },
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .scrollbar-hide {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+            .scrollbar-hide::-webkit-scrollbar {
+                display: none;
+            }
+            .text-shadow {
+                text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+            }
+            .animate-fade-in {
+                animation: fadeIn 0.5s ease-in-out;
+            }
+            .animate-slide-up {
+                animation: slideUp 0.3s ease-out;
+            }
+            @keyframes fadeIn {
+                from { opacity: 0; }
+                to { opacity: 1; }
+            }
+            @keyframes slideUp {
+                from { transform: translateY(20px); opacity: 0; }
+                to { transform: translateY(0); opacity: 1; }
+            }
+        }
+    </style>
+</head>
+<body class="font-noto-serif bg-paper-50 min-h-screen flex flex-col">
+    <!-- 顶部导航 -->
+    <header class="sticky top-0 z-50 bg-red-800 text-white shadow-md">
+        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fa fa-book text-xl"></i>
+                <h1 class="text-xl font-bold">《红楼梦》智能问答助手</h1>
+            </div>
+            <nav>
+                <ul class="flex space-x-6">
+                    <li><a href="#about" class="hover:text-red-100 transition-colors">关于</a></li>
+                    <li><a href="#faq" class="hover:text-red-100 transition-colors">常见问题</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 主要内容 -->
+    <main class="flex-grow container mx-auto px-4 py-8">
+        <!-- 欢迎区域 -->
+        <section class="mb-12 text-center">
+            <div class="bg-paper-100 rounded-2xl p-8 shadow-lg border border-paper-200 max-w-3xl mx-auto">
+                <h2 class="text-[clamp(1.5rem,3vw,2.5rem)] font-bold text-red-800 mb-4">欢迎使用《红楼梦》智能问答助手</h2>
+                <p class="text-gray-700 text-lg mb-6">
+                    我可以回答关于《红楼梦》的人物、情节、主题、分析等方面的问题。
+                    请输入您的问题，我会尽力为您提供准确的回答。
+                </p>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <button class="suggested-question bg-red-700 hover:bg-red-800 text-white px-6 py-2 rounded-full transition-all duration-300 shadow-md hover:shadow-lg">
+                        贾宝玉的性格特点是什么？
+                    </button>
+                    <button class="suggested-question bg-red-700 hover:bg-red-800 text-white px-6 py-2 rounded-full transition-all duration-300 shadow-md hover:shadow-lg">
+                        林黛玉为什么经常哭泣？
+                    </button>
+                    <button class="suggested-question bg-red-700 hover:bg-red-800 text-white px-6 py-2 rounded-full transition-all duration-300 shadow-md hover:shadow-lg">
+                        薛宝钗和林黛玉的区别是什么？
+                    </button>
+                    <button class="suggested-question bg-red-700 hover:bg-red-800 text-white px-6 py-2 rounded-full transition-all duration-300 shadow-md hover:shadow-lg">
+                        《红楼梦》的主题是什么？
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 问答界面 -->
+        <section class="max-w-3xl mx-auto mb-12">
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
+                <!-- 聊天头部 -->
+                <div class="bg-red-800 text-white p-4 flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center mr-3">
+                        <i class="fa fa-book text-red-800"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold">《红楼梦》智能助手</h3>
+                        <p class="text-sm text-red-100">随时为您解答《红楼梦》相关问题</p>
+                    </div>
+                </div>
+
+                <!-- 聊天内容 -->
+                <div id="chat-container" class="h-[500px] overflow-y-auto p-4 space-y-4 scrollbar-hide bg-paper-texture">
+                    <!-- 初始问候消息 -->
+                    <div class="flex items-start animate-fade-in">
+                        <div class="w-8 h-8 rounded-full bg-red-200 flex items-center justify-center text-red-800 mr-3">
+                            <i class="fa fa-book"></i>
+                        </div>
+                        <div class="bg-gray-100 rounded-lg p-3 max-w-[80%]">
+                            <p class="text-gray-800">你好！我是《红楼梦》智能问答助手。我可以回答关于《红楼梦》的人物、情节、主题、分析等方面的问题。请输入你的问题，我会尽力为你解答。</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 输入区域 -->
+                <div class="p-4 border-t border-gray-200 bg-white">
+                    <div class="flex">
+                        <input id="user-question" type="text" placeholder="输入你的问题..." class="flex-grow px-4 py-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent text-gray-800">
+                        <button id="send-question" class="bg-red-700 hover:bg-red-800 text-white px-5 py-3 rounded-r-lg transition-colors flex items-center">
+                            <i class="fa fa-paper-plane mr-2"></i> 发送
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 关于部分 -->
+        <section id="about" class="max-w-3xl mx-auto mb-12">
+            <div class="bg-paper-100 rounded-2xl p-8 shadow-lg border border-paper-200">
+                <h2 class="text-2xl font-bold text-red-800 mb-6 flex items-center">
+                    <i class="fa fa-info-circle mr-2"></i> 关于《红楼梦》智能问答助手
+                </h2>
+                <p class="text-gray-700 mb-4">
+                    《红楼梦》智能问答助手是一个基于人工智能技术的工具，旨在帮助读者更深入地理解中国古典文学名著《红楼梦》。
+                    本助手通过分析《红楼梦》的文本内容，结合自然语言处理技术，能够回答关于小说中人物、情节、主题、象征意义等方面的问题。
+                </p>
+                <p class="text-gray-700 mb-4">
+                    本项目基于现代数字人文方法，运用大数据分析和人工智能技术，为红学研究提供新的视角和工具，帮助读者更深入地理解这部经典著作。
+                </p>
+                <h3 class="text-xl font-semibold text-red-700 mt-6 mb-3">技术实现</h3>
+                <ul class="list-disc list-inside text-gray-700 space-y-2">
+                    <li>前端使用HTML、CSS和JavaScript构建交互式界面</li>
+                    <li>基于预设知识库实现智能问答功能</li>
+                    <li>采用Tailwind CSS实现现代化UI设计</li>
+                    <li>使用Font Awesome图标增强视觉体验</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 常见问题部分 -->
+        <section id="faq" class="max-w-3xl mx-auto mb-12">
+            <div class="bg-white rounded-2xl p-8 shadow-lg border border-gray-200">
+                <h2 class="text-2xl font-bold text-red-800 mb-6 flex items-center">
+                    <i class="fa fa-question-circle mr-2"></i> 常见问题
+                </h2>
+                
+                <div class="space-y-4">
+                    <div class="faq-item border border-gray-200 rounded-lg overflow-hidden">
+                        <button class="faq-question w-full flex justify-between items-center p-4 bg-paper-100 hover:bg-paper-200 transition-colors">
+                            <span class="font-medium text-gray-800">《红楼梦》的作者是谁？</span>
+                            <i class="fa fa-chevron-down text-gray-500 transition-transform"></i>
+                        </button>
+                        <div class="faq-answer hidden p-4 bg-white">
+                            <p class="text-gray-700">
+                                《红楼梦》前八十回由曹雪芹所著，后四十回一般认为由高鹗续写。曹雪芹（约1715-1763），清代小说家，出身于贵族世家，后家境衰落，这些经历对他创作《红楼梦》产生了深远影响。
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item border border-gray-200 rounded-lg overflow-hidden">
+                        <button class="faq-question w-full flex justify-between items-center p-4 bg-paper-100 hover:bg-paper-200 transition-colors">
+                            <span class="font-medium text-gray-800">《红楼梦》的主要人物有哪些？</span>
+                            <i class="fa fa-chevron-down text-gray-500 transition-transform"></i>
+                        </button>
+                        <div class="faq-answer hidden p-4 bg-white">
+                            <p class="text-gray-700">
+                                《红楼梦》的主要人物包括贾宝玉、林黛玉、薛宝钗、王熙凤、贾母、史湘云等。贾宝玉是荣国府衔玉而生的公子，林黛玉是他的姑表妹，薛宝钗是他的姨表姐，三人之间的爱情纠葛是小说的核心情节之一。王熙凤是贾府的管理者，精明能干但心狠手辣。贾母是贾府的最高长辈，史湘云是贾母的侄孙女，性格开朗豪爽。
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item border border-gray-200 rounded-lg overflow-hidden">
+                        <button class="faq-question w-full flex justify-between items-center p-4 bg-paper-100 hover:bg-paper-200 transition-colors">
+                            <span class="font-medium text-gray-800">《红楼梦》的主题是什么？</span>
+                            <i class="fa fa-chevron-down text-gray-500 transition-transform"></i>
+                        </button>
+                        <div class="faq-answer hidden p-4 bg-white">
+                            <p class="text-gray-700">
+                                《红楼梦》的主题十分丰富，主要包括以下几个方面：家族兴衰、爱情悲剧、封建社会的腐朽与崩溃、人性的复杂与命运的无常等。小说通过描写贾、史、王、薛四大家族的兴衰，揭示了封建社会的种种弊端和矛盾，同时也表达了作者对人生的深刻思考和对美好事物的向往。
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-item border border-gray-200 rounded-lg overflow-hidden">
+                        <button class="faq-question w-full flex justify-between items-center p-4 bg-paper-100 hover:bg-paper-200 transition-colors">
+                            <span class="font-medium text-gray-800">《红楼梦》为什么被称为中国古典文学的巅峰之作？</span>
+                            <i class="fa fa-chevron-down text-gray-500 transition-transform"></i>
+                        </button>
+                        <div class="faq-answer hidden p-4 bg-white">
+                            <p class="text-gray-700">
+                                《红楼梦》被称为中国古典文学的巅峰之作，原因在于其深刻的思想内涵、精湛的艺术技巧和丰富的文化底蕴。小说以细腻的笔触描绘了封建社会的生活画卷，塑造了众多栩栩如生的人物形象，其语言优美典雅，结构严谨精巧，情节跌宕起伏。此外，《红楼梦》还涉及诗词、戏曲、绘画、园林等多个领域，展现了中国传统文化的博大精深。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 页脚 -->
+    <footer class="bg-red-800 text-white py-6">
+        <div class="container mx-auto px-4 text-center">
+            <p>© 2023 《红楼梦》智能问答助手 | 基于现代数字人文方法构建</p>
+            <p class="text-sm text-red-100 mt-2">本项目仅供学习研究使用，所有内容均基于《红楼梦》原著及相关研究</p>
+        </div>
+    </footer>
+
+    <script>
+        // 知识库 - 问题和答案对
+        const knowledgeBase = [
+            {
+                question: ["贾宝玉的性格特点是什么？", "贾宝玉是一个怎样的人？", "贾宝玉性格如何？"],
+                answer: "贾宝玉是《红楼梦》的男主角，性格复杂而独特。他叛逆不羁，厌恶科举仕途，视四书五经为“饵名钓禄之阶”。他尊重女性，认为“女儿是水做的骨肉，男人是泥做的骨肉”，在众多姐妹中周旋，与林黛玉有着真挚的爱情。他善良纯真，富有同情心，但也有些软弱和优柔寡断。贾宝玉的性格反映了他对封建社会的不满和对自由生活的向往。"
+            },
+            {
+                question: ["林黛玉为什么经常哭泣？", "林黛玉爱哭的原因是什么？", "林黛玉为什么总是哭？"],
+                answer: "林黛玉的哭泣是其性格和命运的写照。她敏感细腻，情感丰富，对贾宝玉的爱情既真挚又充满猜疑和不安，常常因宝玉的言行而伤心落泪。此外，她体弱多病，寄人篱下的处境使她缺乏安全感，内心充满孤独和忧愁。哭泣也是她宣泄情感的一种方式，同时也暗示了她悲剧性的结局。"
+            },
+            {
+                question: ["薛宝钗和林黛玉的区别是什么？", "宝钗和黛玉有什么不同？", "比较薛宝钗和林黛玉"],
+                answer: "薛宝钗和林黛玉是《红楼梦》中两位重要的女性角色，她们的性格和价值观截然不同。林黛玉敏感、直率、情感丰富，追求真挚的爱情；而薛宝钗稳重、端庄、圆滑世故，符合封建礼教对女性的要求。林黛玉蔑视功名利禄，而薛宝钗则劝贾宝玉走仕途经济之路。她们的性格差异也导致了不同的命运结局。"
+            },
+            {
+                question: ["《红楼梦》的主题是什么？", "《红楼梦》的核心思想是什么？", "《红楼梦》表达了什么？"],
+                answer: "《红楼梦》的主题丰富而深刻，主要包括以下几个方面：家族兴衰、爱情悲剧、封建社会的腐朽与崩溃、人性的复杂与命运的无常等。小说通过描写贾、史、王、薛四大家族的兴衰，揭示了封建社会的种种弊端和矛盾，同时也表达了作者对人生的深刻思考和对美好事物的向往。"
+            },
+            {
+                question: ["王熙凤是一个怎样的人？", "王熙凤的性格特点是什么？", "如何评价王熙凤？"],
+                answer: "王熙凤是贾府的管理者，精明能干，深得贾母和王夫人的信任。她聪明机智，口才出众，善于处理复杂的人际关系和家族事务。然而，她也心狠手辣，贪婪自私，为了维护自己的地位和利益不择手段。她的管理方式虽然有效，但也加剧了贾府的内部矛盾和衰落。王熙凤是一个极具争议性的人物，她的性格和行为反映了封建社会中权力和欲望的腐蚀作用。"
+            },
+            {
+                question: ["《红楼梦》中的金陵十二钗是指哪些人？", "金陵十二钗都有谁？", "金陵十二钗的名单"],
+                answer: "金陵十二钗是《红楼梦》中最主要的十二位女性角色，她们分别是：林黛玉、薛宝钗、贾元春、贾探春、史湘云、妙玉、贾迎春、贾惜春、王熙凤、贾巧姐、李纨、秦可卿。她们的命运各不相同，但都反映了封建社会中女性的悲惨处境。"
+            },
+            {
+                question: ["《红楼梦》的结局是什么？", "《红楼梦》最后怎么样了？", "《红楼梦》的结尾"],
+                answer: "《红楼梦》前八十回由曹雪芹所著，后四十回一般认为由高鹗续写。根据高鹗的续书，贾府最终衰败，贾宝玉出家为僧，林黛玉泪尽而逝，薛宝钗独守空房，王熙凤病死，史湘云流落江湖等。然而，曹雪芹原著的结局可能更加悲惨和深刻，许多人物的命运可能与续书有所不同。"
+            },
+            {
+                question: ["《红楼梦》中的四大家族是哪四个？", "四大家族的关系是什么？", "四大家族的介绍"],
+                answer: "《红楼梦》中的四大家族是指贾、史、王、薛四家，他们相互联姻，势力庞大。贾家是主要家族，分为宁国府和荣国府；史家是贾母的娘家；王家是王熙凤的娘家，也是王夫人和薛姨妈的娘家；薛家是薛宝钗的娘家，富可敌国。四大家族的兴衰是小说的重要背景，反映了封建社会的等级制度和家族关系。"
+            },
+            {
+                question: ["贾宝玉和林黛玉的爱情故事", "宝黛爱情", "贾宝玉和林黛玉的结局"],
+                answer: "贾宝玉和林黛玉的爱情是《红楼梦》的核心情节之一。他们青梅竹马，两小无猜，在长期的相处中产生了真挚的感情。然而，他们的爱情受到封建礼教的束缚和家族利益的影响，最终以悲剧告终。林黛玉泪尽而逝，贾宝玉在绝望中出家为僧。宝黛爱情的悲剧不仅是个人的悲剧，更是封建社会的悲剧。"
+            },
+            {
+                question: ["《红楼梦》的艺术特色", "《红楼梦》的文学价值", "《红楼梦》为什么是经典"],
+                answer: "《红楼梦》被誉为中国古典文学的巅峰之作，其艺术特色主要包括：细腻的人物刻画、复杂的情节结构、优美的语言艺术、深刻的思想内涵等。小说塑造了数百个栩栩如生的人物形象，每个人物都有鲜明的个性和复杂的内心世界。情节错综复杂，线索交织，但又有条不紊。语言优美典雅，富有诗意，同时又生动形象，贴近生活。《红楼梦》的艺术成就和文学价值使其成为中国文学史上的经典之作。"
+            },
+            {
+                question: ["《红楼梦》中的诗词有什么作用？", "《红楼梦》诗词的意义", "《红楼梦》诗词赏析"],
+                answer: "《红楼梦》中的诗词是小说的重要组成部分，具有多方面的作用。首先，诗词是人物性格的写照，不同的人物有不同的诗词风格，反映了他们的性格、气质和命运。其次，诗词是情节发展的暗示，许多诗词预示了人物的结局和故事的发展。此外，诗词还丰富了小说的艺术表现力，增强了作品的文学性和审美价值。"
+            },
+            {
+                question: ["《红楼梦》的版本有哪些？", "《红楼梦》的主要版本", "《红楼梦》版本介绍"],
+                answer: "《红楼梦》的版本众多，主要分为抄本系统和刻本系统。抄本系统以脂砚斋评本为代表，包括甲戌本、己卯本、庚辰本等，这些版本保留了较多的曹雪芹原著的痕迹。刻本系统以程甲本和程乙本为代表，是经过高鹗、程伟元整理和修订的版本，也是流传最广的版本。此外，还有许多其他的版本和校注本，为研究《红楼梦》提供了丰富的资料。"
+            },
+            {
+                question: ["《红楼梦》与中国传统文化的关系", "《红楼梦》中的文化元素", "《红楼梦》体现了哪些传统文化"],
+                answer: "《红楼梦》是中国传统文化的集大成者，书中涉及诗词、戏曲、绘画、书法、园林、服饰、饮食、医药等多个领域，展现了中国传统文化的博大精深。小说中引用了大量的诗词典故，体现了中国古典文学的深厚底蕴；描写了众多的节日习俗和礼仪规范，反映了中国传统社会的生活方式；塑造了许多具有典型意义的人物形象，体现了中国传统文化中的价值观和道德观念。"
+            },
+            {
+                question: ["《红楼梦》中的象征意义", "《红楼梦》的隐喻", "《红楼梦》中的意象"],
+                answer: "《红楼梦》中充满了各种象征意义和隐喻。例如，贾宝玉的通灵宝玉象征着他的命运和身份；林黛玉的眼泪象征着她对贾宝玉的爱情；金陵十二钗的判词和曲子预示了她们的命运结局；大观园象征着一个理想的世界，但最终也走向了衰败。此外，小说中的许多情节和细节也具有象征意义，如“金陵十二钗”的名字谐音、“千红一窟”“万艳同杯”的茶酒名称等。"
+            },
+            {
+                question: ["《红楼梦》的研究现状", "红学研究", "《红楼梦》研究的主要方向"],
+                answer: "《红楼梦》的研究已经形成了一门专门的学科——红学，其研究内容包括版本学、文本学、作者生平、思想内涵、艺术特色、人物形象等多个方面。红学研究的主要流派有索隐派、考证派、评点派、新红学等。近年来，随着跨学科研究的发展，红学研究也与社会学、心理学、文化学等学科相结合，呈现出多元化的发展趋势。"
+            }
+        ];
+
+        // 加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化聊天界面
+            initChatInterface();
+            
+            // 初始化常见问题
+            initFaqSection();
+            
+            // 初始化建议问题
+            initSuggestedQuestions();
+        });
+
+        // 初始化聊天界面
+        function initChatInterface() {
+            // 发送问题按钮点击事件
+            document.getElementById('send-question').addEventListener('click', function() {
+                sendUserQuestion();
+            });
+            
+            // 输入框回车事件
+            document.getElementById('user-question').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendUserQuestion();
+                }
+            });
+        }
+
+        // 初始化常见问题部分
+        function initFaqSection() {
+            const faqQuestions = document.querySelectorAll('.faq-question');
+            
+            faqQuestions.forEach(question => {
+                question.addEventListener('click', function() {
+                    const answer = this.nextElementSibling;
+                    const icon = this.querySelector('i');
+                    
+                    // 切换答案显示状态
+                    answer.classList.toggle('hidden');
+                    
+                    // 切换图标旋转状态
+                    if (answer.classList.contains('hidden')) {
+                        icon.style.transform = 'rotate(0deg)';
+                    } else {
+                        icon.style.transform = 'rotate(180deg)';
+                    }
+                });
+            });
+        }
+
+        // 初始化建议问题
+        function initSuggestedQuestions() {
+            const suggestedQuestions = document.querySelectorAll('.suggested-question');
+            
+            suggestedQuestions.forEach(question => {
+                question.addEventListener('click', function() {
+                    const questionText = this.textContent;
+                    document.getElementById('user-question').value = questionText;
+                    sendUserQuestion();
+                });
+            });
+        }
+
+        // 发送用户问题
+        function sendUserQuestion() {
+            const userInput = document.getElementById('user-question');
+            const question = userInput.value.trim();
+            
+            if (question === '') return;
+            
+            // 显示用户问题
+            addMessageToChat('user', question);
+            
+            // 清空输入框
+            userInput.value = '';
+            
+            // 显示"正在思考"消息
+            addMessageToChat('loading', '');
+            
+            // 模拟AI思考延迟
+            setTimeout(() => {
+                // 移除"正在思考"消息
+                removeLastMessage();
+                
+                // 获取回答
+                const answer = getAnswer(question);
+                
+                // 显示回答
+                addMessageToChat('ai', answer);
+            }, 1000);
+        }
+
+        // 添加消息到聊天界面
+        function addMessageToChat(sender, content) {
+            const chatContainer = document.getElementById('chat-container');
+            let messageHTML = '';
+            
+            if (sender === 'user') {
+                messageHTML = `
+                    <div class="flex items-start justify-end animate-slide-up">
+                        <div class="bg-red-700 text-white rounded-lg p-3 max-w-[80%]">
+                            <p>${content}</p>
+                        </div>
+                        <div class="w-8 h-8 rounded-full bg-red-200 flex items-center justify-center text-red-800 ml-3">
+                            <i class="fa fa-user"></i>
+                        </div>
+                    </div>
+                `;
+            } else if (sender === 'ai') {
+                messageHTML = `
+                    <div class="flex items-start animate-slide-up">
+                        <div class="w-8 h-8 rounded-full bg-red-200 flex items-center justify-center text-red-800 mr-3">
+                            <i class="fa fa-book"></i>
+                        </div>
+                        <div class="bg-gray-100 rounded-lg p-3 max-w-[80%]">
+                            <p>${content}</p>
+                        </div>
+                    </div>
+                `;
+            } else if (sender === 'loading') {
+                messageHTML = `
+                    <div class="flex items-start animate-slide-up">
+                        <div class="w-8 h-8 rounded-full bg-red-200 flex items-center justify-center text-red-800 mr-3">
+                            <i class="fa fa-book"></i>
+                        </div>
+                        <div class="bg-gray-100 rounded-lg p-3 max-w-[80%]">
+                            <div class="flex space-x-1">
+                                <div class="w-2 h-2 rounded-full bg-red-700 animate-bounce"></div>
+                                <div class="w-2 h-2 rounded-full bg-red-700 animate-bounce" style="animation-delay: 0.2s"></div>
+                                <div class="w-2 h-2 rounded-full bg-red-700 animate-bounce" style="animation-delay: 0.4s"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            chatContainer.insertAdjacentHTML('beforeend', messageHTML);
+            
+            // 滚动到底部
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // 移除最后一条消息
+        function removeLastMessage() {
+            const chatContainer = document.getElementById('chat-container');
+            const lastMessage = chatContainer.lastElementChild;
+            if (lastMessage) {
+                chatContainer.removeChild(lastMessage);
+            }
+        }
+
+        // 获取回答
+        async function getAnswer(question) {
+            // 简单的问题匹配
+            for (const item of knowledgeBase) {
+                for (const q of item.question) {
+                    if (question.toLowerCase() === q.toLowerCase()) {
+                        return item.answer;
+                    }
+                }
+            }
+            
+            // 如果没有完全匹配，尝试模糊匹配
+            const normalizedQuestion = question.toLowerCase().replace(/[^\w\s]/gi, '');
+            
+            for (const item of knowledgeBase) {
+                for (const q of item.question) {
+                    const normalizedQ = q.toLowerCase().replace(/[^\w\s]/gi, '');
+                    
+                    // 计算问题相似度
+                    const similarity = calculateSimilarity(normalizedQuestion, normalizedQ);
+                    
+                    // 如果相似度超过阈值，返回该答案
+                    if (similarity > 0.7) {
+                        return item.answer;
+                    }
+                }
+            }
+            
+            // 如果没有匹配，调用ERNIE Bot API
+            try {
+                const apiKey = 'YOUR_API_KEY'; // 替换为你的ERNIE Bot API Key
+                const secretKey = 'YOUR_SECRET_KEY'; // 替换为你的ERNIE Bot Secret Key
+                const tokenResponse = await fetch(`https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=${apiKey}&client_secret=${secretKey}`);
+                const tokenData = await tokenResponse.json();
+                const accessToken = tokenData.access_token;
+
+                const response = await fetch(`https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions?access_token=${accessToken}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        "messages": [
+                            {
+                                "role": "user",
+                                "content": `关于《红楼梦》的问题：${question}`
+                            }
+                        ]
+                    })
+                });
+
+                const data = await response.json();
+                return data.result;
+            } catch (error) {
+                console.error('调用ERNIE Bot API出错:', error);
+                return "抱歉，我无法回答这个问题。请尝试其他关于《红楼梦》的问题，或者参考常见问题部分。";
+            }
+        }
+
+        // 计算字符串相似度（简化版）
+        function calculateSimilarity(str1, str2) {
+            // 简单的相似度计算，实际应用中可以使用更复杂的算法
+            const commonWords = str1.split(' ').filter(word => str2.includes(word));
+            return commonWords.length / Math.max(str1.split(' ').length, str2.split(' ').length);
+        }
+    </script>
+</body>
+</html>
