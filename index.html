@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -457,7 +458,7 @@
         }
 
         // 获取回答
-        async function getAnswer(question) {
+        function getAnswer(question) {
             // 简单的问题匹配
             for (const item of knowledgeBase) {
                 for (const q of item.question) {
@@ -484,35 +485,8 @@
                 }
             }
             
-            // 如果没有匹配，调用ERNIE Bot API
-            try {
-                const apiKey = 'YOUR_API_KEY'; // 替换为你的ERNIE Bot API Key
-                const secretKey = 'YOUR_SECRET_KEY'; // 替换为你的ERNIE Bot Secret Key
-                const tokenResponse = await fetch(`https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id=${apiKey}&client_secret=${secretKey}`);
-                const tokenData = await tokenResponse.json();
-                const accessToken = tokenData.access_token;
-
-                const response = await fetch(`https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/completions?access_token=${accessToken}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        "messages": [
-                            {
-                                "role": "user",
-                                "content": `关于《红楼梦》的问题：${question}`
-                            }
-                        ]
-                    })
-                });
-
-                const data = await response.json();
-                return data.result;
-            } catch (error) {
-                console.error('调用ERNIE Bot API出错:', error);
-                return "抱歉，我无法回答这个问题。请尝试其他关于《红楼梦》的问题，或者参考常见问题部分。";
-            }
+            // 如果没有匹配，返回默认回答
+            return "抱歉，我无法回答这个问题。请尝试其他关于《红楼梦》的问题，或者参考常见问题部分。";
         }
 
         // 计算字符串相似度（简化版）
@@ -524,3 +498,4 @@
     </script>
 </body>
 </html>
+    
